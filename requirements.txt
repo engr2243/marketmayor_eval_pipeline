@@ -1,0 +1,4 @@
+# Runtime. Only the provider SDK and pydantic; everything else is standard
+# library.
+anthropic>=0.104.1
+pydantic>=2.9

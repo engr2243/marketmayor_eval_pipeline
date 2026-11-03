@@ -1,0 +1,5 @@
+# Datasets are identified by the SHA-256 of their bytes, and a run records that
+# hash so two runs can be proved to have scored the same cases. A CRLF checkout
+# changes every byte of every line and so changes the hash, which would make the
+# same dataset look like a different one on another machine.
+data/**/*.jsonl text eol=lf

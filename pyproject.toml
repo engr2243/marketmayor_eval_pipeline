@@ -1,0 +1,82 @@
+# Tooling for this project. Both the evaluation code and the stand-in
+# application are linted and type-checked by this configuration.
+#
+#     python -m ruff check .
+#     python -m mypy .
+#     python -m pytest tests
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# Paths are relative to this file, so the pipeline is the whole world here.
+src = ["."]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # import ordering
+    "UP",   # pyupgrade
+    "B",    # bugbear
+    "SIM",  # simplify
+    "RUF",
+]
+ignore = [
+    # Smart quotes, em-dashes and ellipses are the pipeline's subject matter,
+    # not a typo: the near-miss detector exists to measure what happens when a
+    # model substitutes them, and the adversarial fixtures contain them on
+    # purpose. Flagging them as "ambiguous" would mean suppressing the rule on
+    # every line that matters.
+    "RUF001",
+    "RUF002",
+    "RUF003",
+]
+
+# E402 is NOT ignored globally. The application is not an installed package, so
+# `app.*` imports must follow a sys.path call rather than sit at the top of the
+# file — but that is true of a handful of modules, and each one carries its own
+# `# noqa: E402` saying so. A blanket ignore would hide a genuinely misplaced
+# import everywhere else.
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert on long literal strings, and a constant on the left of an
+# equality assertion reads better than the "Yoda" form ruff prefers.
+"tests/*" = ["E501", "SIM300"]
+# The synthetic fixtures are prose. A contact's message wrapped across two
+# source lines is harder to read than a long one, and the exact characters
+# matter.
+"evals/synthesise.py" = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+
+follow_imports = "silent"
+ignore_missing_imports = true
+# `ignore_missing_imports` covers a module mypy finds but cannot type; it does
+# not cover one mypy cannot locate at all, which is what `app.*` is by default
+# (see the override below). Disabling the code is the only thing that suppresses
+# it, and it is scoped to this configuration, which governs  and nothing
+# else.
+disable_error_code = ["import-not-found"]
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+strict_equality = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+# Pydantic models and the application boundary produce dynamic attributes mypy
+# cannot see. Narrowed to the modules that actually touch it rather than
+# relaxed everywhere.
+module = ["evals.targets.*", "evals.models"]
+warn_return_any = false
+
+[tool.pytest.ini_options]
+# pytest resolves its rootdir by walking up from the test path, so this file is
+# the pipeline's config when the suite is invoked as `python -m pytest tests`
+# from the repository root.
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["error::DeprecationWarning:evals.*"]

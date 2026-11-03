@@ -1,0 +1,27 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# ── Secrets ──────────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Raw run output ───────────────────────────────────────────────────────────
+# Per-case records hold the model's own output, which for a private dataset
+# quotes the source material. Summaries are committed by hand, deliberately.
+runs/
+
+# ── Any dataset that is not synthetic ────────────────────────────────────────
+data/private/
+
+# ── OS / editor ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

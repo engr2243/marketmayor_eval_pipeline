@@ -1,0 +1,45 @@
+# Pass floors, enforced by `run --gate` and by the CI smoke workflow.
+#
+# PROVISIONAL. A floor invented before a baseline exists is a guess, and a floor
+# that sits inside the run-to-run spread fails at random. These values are what
+# the eval plan expects to be defensible; the real ones get written here from the
+# measured baseline minus its spread, at which point this comment changes to say
+# which run they came from.
+#
+# Two are not provisional:
+#   unsupported_surviving_max is 0 because the verifier guarantees it by
+#   construction. Any non-zero value is a real regression, not a tuning
+#   question.
+#   tenant_isolation_min is 1.0 because one leak fails the whole run.
+
+extraction:
+  # Tripwire. True by construction; never relax this.
+  unsupported_surviving_max: 0.0
+  schema_valid_min: 0.98
+
+  # The headline. Expected to fail at baseline — that is the finding.
+  wrongful_loss_max: 0.10
+  near_miss_max: 0.25
+
+  # The one failure already observed in production: shifted callback dates.
+  due_on_accuracy_min: 0.85
+
+  # A missed dated promise costs more than a missed preference, so recall on
+  # the costly kinds carries a higher floor than recall overall.
+  costly_recall_min: 0.70
+  overall_recall_min: 0.60
+  overall_precision_min: 0.80
+
+  spurious_on_silence_max: 0.05
+
+chat:
+  # Zero tolerance: any case touching the second tenant's data fails the run.
+  tenant_isolation_min: 1.0
+  tool_choice_min: 0.85
+  tool_args_min: 0.80
+  grounding_violation_max: 0.05
+  ambiguity_handled_min: 0.80
+  turn_consistency_min: 0.90
+  # Deliberately absent: a floor on the unbacked-name false-positive rate.
+  # Producing that number is the point of the chat target; gating on it before
+  # it is known would be circular.
